@@ -1,3 +1,3 @@
 # github-actions
 
-Shared Github actions and workflows
+Shared GitHub actions and workflows
