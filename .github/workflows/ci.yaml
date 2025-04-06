@@ -12,5 +12,7 @@ on:
 jobs:
   check-github-actions:
     uses: ./.github/workflows/check-github-actions.yaml
+  check-prettier:
+    uses: ./.github/workflows/check-prettier.yaml
   check-yarn:
     uses: ./.github/workflows/check-yarn.yaml
