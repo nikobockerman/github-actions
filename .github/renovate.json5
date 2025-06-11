@@ -1,4 +1,12 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["github>nikobockerman/renovate-config"],
+  packageRules: [
+    {
+      description: "Don't pin node",
+      matchManagers: ["mise"],
+      matchDepNames: ["node"],
+      rangeStrategy: "update-lockfile",
+    },
+  ],
 }
