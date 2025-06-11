@@ -15,5 +15,5 @@ tools."npm:renovate" = "latest"
 run = "prettier --write --cache-location .prettiercache ."
 
 [tools]
-node = "22"
+node = "22.16.0"
 "npm:prettier" = "3.5.3"
