@@ -12,9 +12,18 @@ permissions:
   contents: read
 
 jobs:
+  prepare-mise-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Setup mise and cached tools
+        uses: ./.github/actions/run-mise-task
   check-prettier:
+    needs: prepare-mise-cache
     uses: ./.github/workflows/check-prettier.yaml
   check-renovate-config:
+    needs: prepare-mise-cache
     uses: ./.github/workflows/check-renovate-config.yaml
 
   check:

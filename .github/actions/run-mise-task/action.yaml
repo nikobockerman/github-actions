@@ -2,8 +2,8 @@ name: run mise task
 description: Setup mise and tools for project and run task
 inputs:
   task:
-    description: Task to run
-    required: true
+    description: Task to run. Or empty to only install tools
+    required: false
 
 runs:
   using: composite
@@ -13,5 +13,6 @@ runs:
       with:
         experimental: true
     - name: "Run task: ${{ inputs.task }}"
+      if: ${{ inputs.task != '' }}
       run: mise run ${{ inputs.task }}
       shell: bash
