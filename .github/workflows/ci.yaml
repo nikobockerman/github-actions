@@ -16,14 +16,11 @@ jobs:
     uses: ./.github/workflows/check-prettier.yaml
   check-renovate-config:
     uses: ./.github/workflows/check-renovate-config.yaml
-  check-yarn:
-    uses: ./.github/workflows/check-yarn.yaml
 
   check:
     needs:
       - check-prettier
       - check-renovate-config
-      - check-yarn
     if: always()
     runs-on: ubuntu-latest
     steps:
