@@ -1,0 +1,17 @@
+name: run mise task
+description: Setup mise and tools for project and run task
+inputs:
+  task:
+    description: Task to run
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup mise
+      uses: jdx/mise-action@13abe502c30c1559a5c37dff303831bab82c9402 # v2.2.3
+      with:
+        experimental: true
+    - name: "Run task: ${{ inputs.task }}"
+      run: mise run ${{ inputs.task }}
+      shell: bash
