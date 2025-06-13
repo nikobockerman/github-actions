@@ -1,8 +1,8 @@
-name: run mise task
+name: mise project task
 description: Setup mise and tools for project and run task
 inputs:
   task:
-    description: Task to run. Or empty to only install tools
+    description: Task to run. Leave empty to not run task.
     required: false
 
 runs:
