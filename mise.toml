@@ -11,6 +11,11 @@ run = "prettier --check ."
 run = "renovate-config-validator --strict"
 tools."npm:renovate" = "latest"
 
+[tasks.fix]
+depends = [
+    "fix:prettier"
+]
+
 [tasks."fix:prettier"]
 run = "prettier --write --cache-location .prettiercache ."
 
