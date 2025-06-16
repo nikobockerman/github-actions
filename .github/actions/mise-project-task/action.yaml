@@ -16,6 +16,9 @@ runs:
         # Set rustup under MISE_DATA_DIR for jdz/mise-action to cache rustup
         # installed tools properly
         echo "RUSTUP_HOME=${MISE_DATA_DIR}/.rustup-home" >> "$GITHUB_ENV"
+        # Isolate cargo used with mise. But don't include it in mise cache as
+        # it is better to cache separately if needed.
+        echo "CARGO_HOME=${RUNNER_TEMP}/.mise-cargo" >> "$GITHUB_ENV"
       shell: bash
     - name: Setup environment for mise - windows
       if: runner.os == 'Windows'
@@ -25,6 +28,9 @@ runs:
         # Set rustup under MISE_DATA_DIR for jdz/mise-action to cache rustup
         # installed tools properly
         echo "RUSTUP_HOME=${MISE_DATA_DIR}\.rustup-home" >> "$GITHUB_ENV"
+        # Isolate cargo used with mise. But don't include it in mise cache as
+        # it is better to cache separately if needed.
+        echo "CARGO_HOME=${RUNNER_TEMP}\.mise-cargo" >> "$GITHUB_ENV"
       shell: bash
     - name: Setup mise
       uses: jdx/mise-action@13abe502c30c1559a5c37dff303831bab82c9402 # v2.2.3
