@@ -8,6 +8,24 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Setup environment for mise - unix
+      if: runner.os != 'Windows'
+      run: |
+        MISE_DATA_DIR="${RUNNER_TEMP}/.mise"
+        echo "MISE_DATA_DIR=${MISE_DATA_DIR}" >> "$GITHUB_ENV"
+        # Set rustup under MISE_DATA_DIR for jdz/mise-action to cache rustup
+        # installed tools properly
+        echo "RUSTUP_HOME=${MISE_DATA_DIR}/.rustup-home" >> "$GITHUB_ENV"
+      shell: bash
+    - name: Setup environment for mise - windows
+      if: runner.os == 'Windows'
+      run: |
+        MISE_DATA_DIR="${RUNNER_TEMP}\.mise"
+        echo "MISE_DATA_DIR=${MISE_DATA_DIR}" >> "$GITHUB_ENV"
+        # Set rustup under MISE_DATA_DIR for jdz/mise-action to cache rustup
+        # installed tools properly
+        echo "RUSTUP_HOME=${MISE_DATA_DIR}\.rustup-home" >> "$GITHUB_ENV"
+      shell: bash
     - name: Setup mise
       uses: jdx/mise-action@13abe502c30c1559a5c37dff303831bab82c9402 # v2.2.3
       env:
