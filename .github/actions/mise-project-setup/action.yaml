@@ -1,0 +1,50 @@
+name: mise project setup
+description: Setup mise and tools for project
+inputs:
+  cache_save:
+    description: Save to cache after mise install
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup environment variables and parameters
+      id: setup
+      run: |
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          SEP="\\"
+        else
+          SEP="/"
+        fi
+        MISE_DATA_DIR="${RUNNER_TEMP}${SEP}.mise"
+        echo "MISE_DATA_DIR=${MISE_DATA_DIR}" >> "$GITHUB_ENV"
+        # Set rustup under MISE_DATA_DIR for jdz/mise-action to cache rustup
+        # installed tools properly
+        echo "RUSTUP_HOME=${MISE_DATA_DIR}${SEP}.rustup-home" >> "$GITHUB_ENV"
+        # Isolate cargo used with mise. But don't include it in mise cache as
+        # it is better to cache separately if needed.
+        CARGO_HOME_FINAL="${RUNNER_TEMP}${SEP}.mise-cargo"
+        echo "CARGO_HOME_FINAL=${CARGO_HOME_FINAL}" >> "$GITHUB_OUTPUT"
+        # Use a directory inside MISE_DATA_DIR as CARGO_HOME during mise install
+        # to allow caching of cargo binaries that mise requires to exist after
+        # in order to utilize cached rustup and cargo binaries without reinstalling
+        # them.
+        echo "CARGO_HOME_MISE_INSTALL=${MISE_DATA_DIR}${SEP}.cargo-home" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - name: Setup mise
+      uses: jdx/mise-action@13abe502c30c1559a5c37dff303831bab82c9402 # v2.2.3
+      env:
+        CARGO_HOME: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
+        GITHUB_TOKEN: ${{ github.token }}
+        TEMP: ${{ runner.temp }}
+      with:
+        cache_save: ${{ inputs.cache_save }}
+        experimental: true
+    - name: Setup cargo home
+      run: |
+        set -x
+        mkdir -p "${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}"
+        mv "${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}" "${{ steps.setup.outputs.CARGO_HOME_FINAL }}"
+        echo "CARGO_HOME=${{ steps.setup.outputs.CARGO_HOME_FINAL }}" >> "$GITHUB_ENV"
+      shell: bash
