@@ -44,9 +44,12 @@ runs:
         cache_save: ${{ inputs.cache_save }}
         experimental: true
     - name: Setup cargo home
+      env:
+        CARGO_HOME_MISE_INSTALL: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
+        CARGO_HOME_FINAL: ${{ steps.setup.outputs.CARGO_HOME_FINAL }}
       run: |
         set -x
-        mkdir -p "${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}"
-        mv "${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}" "${{ steps.setup.outputs.CARGO_HOME_FINAL }}"
-        echo "CARGO_HOME=${{ steps.setup.outputs.CARGO_HOME_FINAL }}" >> "$GITHUB_ENV"
+        mkdir -p "$CARGO_HOME_MISE_INSTALL"
+        mv "$CARGO_HOME_MISE_INSTALL" "$CARGO_HOME_FINAL"
+        echo "CARGO_HOME=$CARGO_HOME_FINAL" >> "$GITHUB_ENV"
       shell: bash
