@@ -11,8 +11,10 @@ runs:
   steps:
     - name: Setup environment variables and parameters
       id: setup
+      env:
+        RUNNER_OS: ${{ runner.os }}
       run: |
-        if [ "${{ runner.os }}" = "Windows" ]; then
+        if [ "$RUNNER_OS" = "Windows" ]; then
           SEP="\\"
         else
           SEP="/"
