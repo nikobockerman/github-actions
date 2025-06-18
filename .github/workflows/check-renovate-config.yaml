@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Setup mise
+        uses: ./.github/actions/mise-project-setup
       - name: Check renovate config
-        uses: ./.github/actions/mise-project-task
-        with:
-          task: check:renovateconfig
+        run: mise run check:renovateconfig
