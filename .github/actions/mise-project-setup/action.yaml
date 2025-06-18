@@ -1,0 +1,55 @@
+name: mise project setup
+description: Setup mise and tools for project
+inputs:
+  cache_save:
+    description: Save to cache after mise install
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup environment variables and parameters
+      id: setup
+      env:
+        RUNNER_OS: ${{ runner.os }}
+      run: |
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          SEP="\\"
+        else
+          SEP="/"
+        fi
+        MISE_DATA_DIR="${RUNNER_TEMP}${SEP}.mise"
+        echo "MISE_DATA_DIR=$(echo "${MISE_DATA_DIR}" | tr -d '\n')" >> "$GITHUB_ENV"
+        # Set rustup under MISE_DATA_DIR for jdz/mise-action to cache rustup
+        # installed tools properly
+        echo "RUSTUP_HOME=$(echo "${MISE_DATA_DIR}${SEP}.rustup-home" | tr -d '\n')" >> "$GITHUB_ENV"
+        # Isolate cargo used with mise. But don't include it in mise cache as
+        # it is better to cache separately if needed.
+        CARGO_HOME_FINAL="${RUNNER_TEMP}${SEP}.mise-cargo"
+        echo "CARGO_HOME_FINAL=$(echo "${CARGO_HOME_FINAL}" | tr -d '\n')" >> "$GITHUB_OUTPUT"
+        # Use a directory inside MISE_DATA_DIR as CARGO_HOME during mise install
+        # to allow caching of cargo binaries that mise requires to exist after
+        # in order to utilize cached rustup and cargo binaries without reinstalling
+        # them.
+        echo "CARGO_HOME_MISE_INSTALL=$(echo "${MISE_DATA_DIR}${SEP}.cargo-home" | tr -d '\n')" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - name: Setup mise
+      uses: jdx/mise-action@13abe502c30c1559a5c37dff303831bab82c9402 # v2.2.3
+      env:
+        CARGO_HOME: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
+        GITHUB_TOKEN: ${{ github.token }}
+        TEMP: ${{ runner.temp }}
+      with:
+        cache_save: ${{ inputs.cache_save }}
+        experimental: true
+    - name: Setup cargo home
+      env:
+        CARGO_HOME_MISE_INSTALL: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
+        CARGO_HOME_FINAL: ${{ steps.setup.outputs.CARGO_HOME_FINAL }}
+      run: |
+        set -x
+        mkdir -p "$CARGO_HOME_MISE_INSTALL"
+        mv "$CARGO_HOME_MISE_INSTALL" "$CARGO_HOME_FINAL"
+        echo "CARGO_HOME=$(echo "$CARGO_HOME_FINAL" | tr -d '\n')" >> "$GITHUB_ENV"
+      shell: bash
