@@ -14,5 +14,7 @@ runs:
         experimental: true
     - name: "Run task: ${{ inputs.task }}"
       if: ${{ inputs.task != '' }}
-      run: mise run ${{ inputs.task }}
+      env:
+        TASK: ${{ inputs.task }}
+      run: mise run "$TASK"
       shell: bash
