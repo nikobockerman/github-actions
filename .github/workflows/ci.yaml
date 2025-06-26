@@ -20,7 +20,7 @@ jobs:
       - name: Setup mise and cached tools
         uses: ./.github/actions/mise-project-setup
         with:
-          cache_save: true
+          cache-mode: prepare
   check-prettier:
     needs: mise-cache
     uses: ./.github/workflows/check-prettier.yaml
