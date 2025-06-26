@@ -1,14 +1,30 @@
 name: mise project setup
 description: Setup mise and tools for project
 inputs:
-  cache_save:
-    description: Save to cache after mise install
+  cache-mode:
+    description: "Mode of operation regarding cache: 'prepare' or 'use'"
     required: false
-    default: "false"
+    default: "use"
 
 runs:
   using: composite
   steps:
+    - name: Prepare variables regarding cache mode
+      id: mode
+      env:
+        MODE: ${{ inputs.cache-mode }}
+      run: |
+        if [ "$MODE" = "prepare" ]; then
+          echo "cache_save=true" >> "$GITHUB_OUTPUT"
+          echo "fail-on-cache-miss=false" >> "$GITHUB_OUTPUT"
+        elif [ "$MODE" = "use" ]; then
+          echo "cache_save=false" >> "$GITHUB_OUTPUT"
+          echo "fail-on-cache-miss=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "Unknown cache mode: $MODE"
+          exit 1
+        fi
+      shell: bash
     - name: Setup environment variables and parameters
       id: setup
       env:
@@ -35,14 +51,19 @@ runs:
         echo "CARGO_HOME_MISE_INSTALL=$(echo "${MISE_DATA_DIR}${SEP}.cargo-home" | tr -d '\n')" >> "$GITHUB_OUTPUT"
       shell: bash
     - name: Setup mise
+      id: mise
       uses: jdx/mise-action@13abe502c30c1559a5c37dff303831bab82c9402 # v2.2.3
       env:
         CARGO_HOME: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
         GITHUB_TOKEN: ${{ github.token }}
         TEMP: ${{ runner.temp }}
       with:
-        cache_save: ${{ inputs.cache_save }}
-        experimental: true
+        cache_save: ${{ steps.mode.outputs.cache_save }}
+        version: v2025.6.8
+    - name: Fail on cache miss
+      if: steps.mode.outputs.fail-on-cache-miss == 'true' && steps.mise.outputs.cache-hit != 'true'
+      run: exit 1
+      shell: bash
     - name: Setup cargo home
       env:
         CARGO_HOME_MISE_INSTALL: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
