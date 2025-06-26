@@ -57,9 +57,11 @@ runs:
         CARGO_HOME: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
         GITHUB_TOKEN: ${{ github.token }}
         TEMP: ${{ runner.temp }}
+        # renovate: datasource=github-releases depName=jdx/mise
+        MISE_VERSION: v2025.6.8
       with:
         cache_save: ${{ steps.mode.outputs.cache_save }}
-        version: v2025.6.8
+        version: ${{ env.MISE_VERSION }}
     - name: Fail on cache miss
       if: steps.mode.outputs.fail-on-cache-miss == 'true' && steps.mise.outputs.cache-hit != 'true'
       run: exit 1
