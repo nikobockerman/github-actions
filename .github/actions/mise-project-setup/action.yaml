@@ -42,6 +42,7 @@ runs:
         TEMP: ${{ runner.temp }}
       with:
         cache_save: ${{ inputs.cache_save }}
+        version: v2025.6.8
     - name: Setup cargo home
       env:
         CARGO_HOME_MISE_INSTALL: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
