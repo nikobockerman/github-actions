@@ -61,7 +61,7 @@ runs:
         cache_save: ${{ steps.mode.outputs.cache_save }}
         version: v2025.6.8
     - name: Fail on cache miss
-      if: steps.mode.outputs.fail-on-cache-miss == 'true' && steps.mise.outputs.cache_hit != 'true'
+      if: steps.mode.outputs.fail-on-cache-miss == 'true' && steps.mise.outputs.cache-hit != 'true'
       run: exit 1
       shell: bash
     - name: Setup cargo home
