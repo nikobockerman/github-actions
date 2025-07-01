@@ -1,0 +1,25 @@
+name: Create new version tag
+on:
+  # TODO: Add autotrigger on push
+  push:
+    branches:
+      - ci-auto-tag-new-patch-version
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  create-new-version-tag:
+    name: Create new version tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Create new version tag
+        uses: ./.github/actions/tag-new-patch-version
+        with:
+          commit: ${{ steps.checkout.outputs.commit }}
+          path: .github/actions

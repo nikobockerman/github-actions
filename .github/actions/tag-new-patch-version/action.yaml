@@ -1,0 +1,96 @@
+name: tag new patch version
+description: Tag new patch version for repo, if paths have changed since previous tag
+inputs:
+  commit:
+    description: "Commit to tag as new version"
+    required: true
+  path:
+    description: "Path in repo to files relevant for new release. Example: '.github/workflows'"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      shell: bash
+    - name: Resolve previous tagged commit
+      id: prev
+      run: |
+        set -x
+        prevTag=$(git describe --tags --abbrev=0 || true)
+        echo "PREV_TAG=$(echo "$prevTag" | tr -d '\n')" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - name: Check for changes since previous tag
+      id: filter
+      uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 #v3.0.2
+      with:
+        base: ${{ steps.prev.outputs.PREV_TAG }}
+        filters: |
+          files:
+            - "${{ inputs.path }}/**"
+    - name: Resolve current major.minor version
+      if: steps.filter.outputs.files == 'true'
+      id: version
+      run: |
+        set -x
+        echo "VERSION=$(cat version.txt | tr -d '\n')" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - name: Resolve new version
+      if: steps.filter.outputs.files == 'true'
+      id: new
+      env:
+        PREV_TAG: ${{ steps.prev.outputs.PREV_TAG }}
+        VERSION: ${{ steps.version.outputs.VERSION }}
+      run: |
+        set -x
+        prevVersion=${PREV_TAG#v}
+        prevMajorMinor=${prevVersion%.*}
+        if [ "$prevMajorMinor" != "$VERSION" ]; then
+          # New major.minor version
+          newVersion="$VERSION.0"
+        else
+          # Same major.minor version
+          prevPatch=${prevVersion##*.}
+          newPatch=$((prevPatch+1))
+          newVersion="$VERSION.$newPatch"
+        fi
+
+        echo "NEW_VERSION=$(echo "${newVersion}" | tr -d '\n')" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - name: Add tag
+      if: steps.filter.outputs.files == 'true'
+      id: tag
+      env:
+        NEW_VERSION: ${{ steps.new.outputs.NEW_VERSION }}
+        COMMIT: ${{ inputs.commit }}
+      run: |
+        set -x
+        newTag="v${NEW_VERSION}"
+        git tag -a "${newTag}" -m "${newTag}" ${COMMIT}
+        git show "${newTag}"
+        echo "NEW_TAG=$(echo "${newTag}" | tr -d '\n')" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - name: Push tag
+      if: steps.filter.outputs.files == 'true'
+      env:
+        NEW_TAG: ${{ steps.tag.outputs.NEW_TAG }}
+      run: |
+        set -x
+        echo TODO
+        echo git push origin "${NEW_TAG}"
+      shell: bash
+    - name: Done
+      if: steps.filter.outputs.files == 'true'
+      env:
+        NEW_TAG: ${{ steps.tag.outputs.NEW_TAG }}
+      run: |
+        echo "# New release: ${NEW_TAG}" >> "$GITHUB_STEP_SUMMARY"
+      shell: bash
+    - name: No changes
+      if: steps.filter.outputs.files != 'true'
+      run: |
+        echo "# No changes -> no new release!" >> "$GITHUB_STEP_SUMMARY"
+      shell: bash
