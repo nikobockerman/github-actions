@@ -52,7 +52,7 @@ runs:
       shell: bash
     - name: Setup mise
       id: mise
-      uses: jdx/mise-action@13abe502c30c1559a5c37dff303831bab82c9402 # v2.2.3
+      uses: jdx/mise-action@5cb1df66ed5e1fb3c670ea0b62fd17a76979826a # v2.3.1
       env:
         CARGO_HOME: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
         GITHUB_TOKEN: ${{ github.token }}
