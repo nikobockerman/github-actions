@@ -58,7 +58,7 @@ runs:
         GITHUB_TOKEN: ${{ github.token }}
         TEMP: ${{ runner.temp }}
         # renovate: datasource=github-releases depName=jdx/mise
-        MISE_VERSION: v2025.6.8
+        MISE_VERSION: v2025.7.0
       with:
         cache_save: ${{ steps.mode.outputs.cache_save }}
         version: ${{ env.MISE_VERSION }}
