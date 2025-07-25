@@ -9,4 +9,8 @@ plugins:
           release: patch
   - - "@semantic-release/release-notes-generator"
     - preset: conventionalcommits
+      releaseRules:
+        - type: chore
+          scope: actions
+          release: patch
   - "@semantic-release/github"
